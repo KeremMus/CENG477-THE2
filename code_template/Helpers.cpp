@@ -5,6 +5,8 @@
 #include "Vec3.h"
 #include "Vec4.h"
 
+
+
 using namespace std;
 
 /*
@@ -201,4 +203,23 @@ Vec4 multiplyMatrixWithVec4(Matrix4 m, Vec4 v)
     }
 
     return Vec4(values[0], values[1], values[2], values[3], v.colorId);
+}
+
+Matrix4 getResultingTransformationMatrix(Mesh mesh, Scene scene){
+    Matrix4 result = getIdentityMatrix();
+    for (int i = 0; i < mesh.transformationTypes.size() ; i++){
+        if (mesh.transformationTypes[i] == 't'){
+            Translation *translation = scene.translations[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(translation->getTranslationMatrix(), result);
+        }
+        if (mesh.transformationTypes[i] == 's'){
+            Scaling *scaling = scene.scalings[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(scaling->getScalingMatrix(), result);
+        }
+        if (mesh.transformationTypes[i] == 'r'){
+            Rotation *rotation = scene.rotations[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(rotation->getRotationMatrix(), result);
+        }
+    }
+    return result;
 }

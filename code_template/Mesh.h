@@ -4,6 +4,10 @@
 #include <vector>
 #include "Triangle.h"
 #include <iostream>
+#include "Vec4.h"
+#include "Matrix4.h"
+#include "Helpers.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -25,8 +29,11 @@ public:
           vector<char> transformationTypes,
           int numberOfTriangles,
           vector<Triangle> triangles);
+    void applyTransformation(Matrix4 transformationMatrix,Scene scene);
+
 
     friend ostream &operator<<(ostream &os, const Mesh &m);
 };
+
 
 #endif

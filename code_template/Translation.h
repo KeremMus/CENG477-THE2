@@ -13,6 +13,8 @@ public:
 
     Translation();
     Translation(int translationId, double tx, double ty, double tz);
+    Matrix4 getTranslationMatrix();
+    Vec4 applyTranslation(Vec4 v);
     friend ostream &operator<<(ostream &os, const Translation &t);
 };
 
