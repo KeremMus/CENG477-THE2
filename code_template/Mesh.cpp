@@ -24,26 +24,6 @@ Mesh::Mesh(int meshId, int type, int numberOfTransformations,
     this->triangles = triangles;
 }
 
-void Mesh::applyTransformation(Matrix4 transformationMatrix,Scene scene)
-{
-    for (int i = 0; i < this->triangles.size(); i++)
-    {
-       Vec4 firstResultVertex,secondResultVertex,thirdResultVertex;
-       firstResultVertex.x = scene.vertices[this->triangles[i].getFirstVertexId()]->x;
-       firstResultVertex.y = scene.vertices[this->triangles[i].getFirstVertexId()]->y;
-       firstResultVertex.z = scene.vertices[this->triangles[i].getFirstVertexId()]->z;
-
-       secondResultVertex.x = scene.vertices[this->triangles[i].getSecondVertexId()]->x;
-       secondResultVertex.y = scene.vertices[this->triangles[i].getSecondVertexId()]->y;
-       secondResultVertex.z = scene.vertices[this->triangles[i].getSecondVertexId()]->z;
-
-       thirdResultVertex.x = scene.vertices[this->triangles[i].getThirdVertexId()]->x;
-       thirdResultVertex.y = scene.vertices[this->triangles[i].getThirdVertexId()]->y;
-       thirdResultVertex.z = scene.vertices[this->triangles[i].getThirdVertexId()]->z;
-    
-    }
-
-}
 
 ostream &operator<<(ostream &os, const Mesh &m)
 {

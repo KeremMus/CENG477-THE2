@@ -38,7 +38,8 @@ public:
 	Scene(const char *xmlPath);
 
 	void initializeImage(Camera* camera);
-	void forwardRenderingPipeline(Camera* camera);
+    Matrix4 getResultingTransformationMatrix(Mesh mesh);
+    void forwardRenderingPipeline(Camera* camera);
 	int makeBetweenZeroAnd255(double value);
 	void writeImageToPPMFile(Camera* camera);
 	void convertPPMToPNG(string ppmFileName, int osType);

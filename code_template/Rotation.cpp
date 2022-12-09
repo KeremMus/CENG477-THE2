@@ -34,9 +34,7 @@ Matrix4 Rotation::getRotationMatrix() {
     result.m[3][3] = 1.0;
     return result;
 }
-Vec3 applyRotation(Vec3 v) {
 
-}
 
 ostream &operator<<(ostream &os, const Rotation &r)
 {

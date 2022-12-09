@@ -55,6 +55,34 @@ Camera::Camera(const Camera &other)
     this->outputFileName = other.outputFileName;
 }
 
+Matrix4 Camera::getCameraTransformationMatrix(){
+
+    Matrix4 cameraTransformationMatrix;
+
+    cameraTransformationMatrix[0][0] = u.x;
+    cameraTransformationMatrix[0][1] = u.y;
+    cameraTransformationMatrix[0][2] = u.z;
+    cameraTransformationMatrix[0][3] = -pos.dot(u);
+
+    cameraTransformationMatrix[1][0] = v.x;
+    cameraTransformationMatrix[1][1] = v.y;
+    cameraTransformationMatrix[1][2] = v.z;
+    cameraTransformationMatrix[1][3] = -pos.dot(v);
+
+    cameraTransformationMatrix[2][0] = w.x;
+    cameraTransformationMatrix[2][1] = w.y;
+    cameraTransformationMatrix[2][2] = w.z;
+    cameraTransformationMatrix[2][3] = -pos.dot(w);
+
+    cameraTransformationMatrix[3][0] = 0;
+    cameraTransformationMatrix[3][1] = 0;
+    cameraTransformationMatrix[3][2] = 0;
+    cameraTransformationMatrix[3][3] = 1;
+
+    return cameraTransformationMatrix;
+}
+
+
 ostream &operator<<(ostream &os, const Camera &c)
 {
     const char *camType = c.projectionType ? "perspective" : "orthographic";

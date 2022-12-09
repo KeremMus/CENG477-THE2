@@ -1,6 +1,6 @@
 #ifndef __TRIANGLE_H__
 #define __TRIANGLE_H__
-
+#include "Helpers.h"
 
 class Triangle
 {
@@ -15,6 +15,7 @@ public:
     int getSecondVertexId();
     int getThirdVertexId();
 
+    Vec3* applyTransformations(Matrix4 transformations);
     void setFirstVertexId(int vid);
     void setSecondVertexId(int vid);
     void setThirdVertexId(int vid);

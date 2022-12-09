@@ -29,8 +29,6 @@ public:
           vector<char> transformationTypes,
           int numberOfTriangles,
           vector<Triangle> triangles);
-    void applyTransformation(Matrix4 transformationMatrix,Scene scene);
-
 
     friend ostream &operator<<(ostream &os, const Mesh &m);
 };

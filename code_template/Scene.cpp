@@ -20,13 +20,62 @@
 using namespace tinyxml2;
 using namespace std;
 
+
+Matrix4 getResultingTransformationMatrix(Mesh mesh){
+    Matrix4 result = getIdentityMatrix();
+    for (int i = 0; i < mesh.transformationTypes.size() ; i++){
+        if (mesh.transformationTypes[i] == 't'){
+            Translation *translation = this.translations[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(translation->getTranslationMatrix(), result);
+        }
+        if (mesh.transformationTypes[i] == 's'){
+            Scaling *scaling = this.scalings[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(scaling->getScalingMatrix(), result);
+        }
+        if (mesh.transformationTypes[i] == 'r'){
+            Rotation *rotation = this.rotations[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(rotation->getRotationMatrix(), result);
+        }
+    }
+    return result;
+}
 /*
 	Transformations, clipping, culling, rasterization are done here.
 	You may define helper functions.
 */
+
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
-	// TODO: Implement this function.
+    Matrix4 viewportMatrix = getViewportMatrix(camera->, camera->viewportY, camera->viewportWidth, camera->viewportHeight);
+    Matrix4 transformMatrix = camera->getCameraTransformationMatrix();
+
+    // Viewport x_min?, rotation
+
+    if(camera->projectionType == 1) // perspective projection
+    /{
+
+
+    }
+    else if (camera->projectionType == 0){
+
+    }
+
+    for (int i = 0; i < this->meshes.size(); i++)
+    {
+        Mesh mesh = *this->meshes[i];
+        Matrix4 transformMatrix = getResultingTransformationMatrix(mesh);
+        transformMatrix = multiplyMatrixWithMatrix(camera->getCameraTransformationMatrix(), transformMatrix);
+
+        //        for (int j = 0; j < mesh.triangles.size(); j++){
+        //            Triangle triangle = mesh.triangles[j];
+        //            Vec3* new_coordinates = triangle.applyTransformation(transformMatrix);
+        //            this.scene[new_coordinates[0].x][]
+        //        }
+
+    }
+
+
+
 }
 
 /*

@@ -40,12 +40,7 @@ Matrix4 Translation::getTranslationMatrix()
     result.m[3][3] = 1.0;
     return result;
 }
-Vec4 applyTranslation(Vec4 v)
-{
-    Matrix4 translationMatrix = getTranslationMatrix();
-    Vec4 result = Helper::multiplyMatrixWithVector(translationMatrix, v);
-    return result;
-}
+
 ostream &operator<<(ostream &os, const Translation &t)
 {
     os << fixed << setprecision(3) << "Translation " << t.translationId << " => [" << t.tx << ", " << t.ty << ", " << t.tz << "]";

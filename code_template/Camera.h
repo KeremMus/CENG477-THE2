@@ -37,6 +37,8 @@ public:
 
     Camera(const Camera &other);
 
+    Matrix4 getCameraTransformationMatrix();
+
     friend std::ostream &operator<<(std::ostream &os, const Camera &c);
 };
 

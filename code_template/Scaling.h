@@ -2,7 +2,7 @@
 #define __SCALING_H__
 
 #include <iostream>
-
+#include "Vec4.h"
 using namespace std;
 
 class Scaling
@@ -13,7 +13,7 @@ public:
 
     Scaling();
     Scaling(int scalingId, double sx, double sy, double sz);
-    Matrix4 getScalingMatrix();
+    Matrix4 getScalingMatrix(Vec4 v);
     friend ostream &operator<<(ostream &os, const Scaling &s);
 };
 
