@@ -13,6 +13,7 @@ public:
 
     Vec4();
     Vec4(double x, double y, double z, double t, int colorId);
+    Vec4(double x, double y, double z, double t);
     Vec4(const Vec4 &other);
     
     double getElementAt(int index);

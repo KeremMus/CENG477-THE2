@@ -2,6 +2,10 @@
 #define __ROTATION_H__
 
 #include <iostream>
+#include <cmath>
+#include "Matrix4.h"
+#include "Vec4.h"
+#include "Vec3.h"
 
 using namespace std;
 

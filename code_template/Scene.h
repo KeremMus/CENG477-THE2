@@ -17,6 +17,7 @@
 #include "Triangle.h"
 #include "Vec3.h"
 #include "Vec4.h"
+#include "Helpers.h"
 
 using namespace std;
 

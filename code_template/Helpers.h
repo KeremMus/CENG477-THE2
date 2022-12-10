@@ -12,6 +12,7 @@
 #include "Rotation.h"
 #include "Scaling.h"
 #include "Scene.h"
+
 /*
  * Calculate cross product of vec3 a, vec3 b and return resulting vec3.
  */

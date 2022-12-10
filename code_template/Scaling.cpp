@@ -16,22 +16,22 @@ Scaling::Scaling(int scalingId, double sx, double sy, double sz)
 Matrix4 Scaling::getScalingMatrix(Vec4 v)
 {
     Matrix4 result;
-    result.m[0][0] = sx;
-    result.m[0][1] = 0.0;
-    result.m[0][2] = 0.0;
-    result.m[0][3] = v.x * (1 - sx);
-    result.m[1][0] = 0.0;
-    result.m[1][1] = sy;
-    result.m[1][2] = 0.0;
-    result.m[1][3] = v.y * (1 - sy);
-    result.m[2][0] = 0.0;
-    result.m[2][1] = 0.0;
-    result.m[2][2] = sz;
-    result.m[2][3] = v.z * (1 - sz);
-    result.m[3][0] = 0.0;
-    result.m[3][1] = 0.0;
-    result.m[3][2] = 0.0;
-    result.m[3][3] = 1.0;
+    result.val[0][0] = sx;
+    result.val[0][1] = 0.0;
+    result.val[0][2] = 0.0;
+    result.val[0][3] = v.x * (1 - sx);
+    result.val[1][0] = 0.0;
+    result.val[1][1] = sy;
+    result.val[1][2] = 0.0;
+    result.val[1][3] = v.y * (1 - sy);
+    result.val[2][0] = 0.0;
+    result.val[2][1] = 0.0;
+    result.val[2][2] = sz;
+    result.val[2][3] = v.z * (1 - sz);
+    result.val[3][0] = 0.0;
+    result.val[3][1] = 0.0;
+    result.val[3][2] = 0.0;
+    result.val[3][3] = 1.0;
     return result;
 }
 

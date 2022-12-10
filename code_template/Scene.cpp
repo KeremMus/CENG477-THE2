@@ -15,26 +15,25 @@
 #include "Triangle.h"
 #include "Vec3.h"
 #include "tinyxml2.h"
-#include "Helpers.h"
 
 using namespace tinyxml2;
 using namespace std;
 
 
-Matrix4 getResultingTransformationMatrix(Mesh mesh){
+Matrix4 Scene::getResultingTransformationMatrix(Mesh mesh){
     Matrix4 result = getIdentityMatrix();
     for (int i = 0; i < mesh.transformationTypes.size() ; i++){
         if (mesh.transformationTypes[i] == 't'){
-            Translation *translation = this.translations[mesh.transformationIds[i]];
-            result = multiplyMatrixWithMatrix(translation->getTranslationMatrix(), result);
+            Translation translation = *this->translations[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(translation.getTranslationMatrix(), result);
         }
         if (mesh.transformationTypes[i] == 's'){
-            Scaling *scaling = this.scalings[mesh.transformationIds[i]];
-            result = multiplyMatrixWithMatrix(scaling->getScalingMatrix(), result);
+            Scaling scaling = *this->scalings[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(scaling.getScalingMatrix(), result);
         }
         if (mesh.transformationTypes[i] == 'r'){
-            Rotation *rotation = this.rotations[mesh.transformationIds[i]];
-            result = multiplyMatrixWithMatrix(rotation->getRotationMatrix(), result);
+            Rotation rotation = *this->rotations[mesh.transformationIds[i]];
+            result = multiplyMatrixWithMatrix(rotation.getRotationMatrix(), result);
         }
     }
     return result;
@@ -42,11 +41,11 @@ Matrix4 getResultingTransformationMatrix(Mesh mesh){
 
 Vec3 Scene::getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondVertex, Vec3 thirdVertex) {
     Vec3 result;
-    double alphaNom = (point.x*(secondVertex.y-thirdVertex.y)+ point.y(thirdVertex.x- secondVertex.x)+(secondVertex.x*thirdVertex.y)-(secondVertex.y*thirdVertex.x));
-    double alphaDenom = (firstVertex.x*(secondVertex.y-thirdVertex.y)+ firstVertex.y(thirdVertex.x- secondVertex.x)+(secondVertex.x*thirdVertex.y)-(secondVertex.y*thirdVertex.x));
+    double alphaNom = (point.x*(secondVertex.y-thirdVertex.y)+ point.y*(thirdVertex.x- secondVertex.x)+(secondVertex.x*thirdVertex.y)-(secondVertex.y*thirdVertex.x));
+    double alphaDenom = (firstVertex.x*(secondVertex.y-thirdVertex.y)+ firstVertex.y*(thirdVertex.x- secondVertex.x)+(secondVertex.x*thirdVertex.y)-(secondVertex.y*thirdVertex.x));
     double alpha = alphaNom/alphaDenom;
-    double betaNom = (point.x*(thirdVertex.y-firstVertex.y)+ point.y(firstVertex.x- thirdVertex.x)+(thirdVertex.x*firstVertex.y)-(thirdVertex.y*firstVertex.x));
-    double betaDenom = (secondVertex.x*(thirdVertex.y-firstVertex.y)+ secondVertex.y(firstVertex.x- thirdVertex.x)+(thirdVertex.x*firstVertex.y)-(thirdVertex.y*firstVertex.x));
+    double betaNom = (point.x*(thirdVertex.y-firstVertex.y)+ point.y*(firstVertex.x- thirdVertex.x)+(thirdVertex.x*firstVertex.y)-(thirdVertex.y*firstVertex.x));
+    double betaDenom = (secondVertex.x*(thirdVertex.y-firstVertex.y)+ secondVertex.y*(firstVertex.x- thirdVertex.x)+(thirdVertex.x*firstVertex.y)-(thirdVertex.y*firstVertex.x));
     double beta = betaNom/betaDenom;
     double gamma = 1 - alpha - beta;
     result.x = alpha;
@@ -61,7 +60,7 @@ Vec3 Scene::getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondV
 
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
-    Matrix4 viewportMatrix = getViewportMatrix(camera);
+    Matrix4 viewportMatrix = camera->getViewportTransformationMatrix();
 
     Matrix4 cameraTransformationMatrix = camera->getCameraTransformationMatrix();
     Matrix4 perspectiveMatrix = camera->getProjectionTransformationMatrix(camera->projectionType);
@@ -78,9 +77,13 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 
         for (int j = 0; j < mesh.numberOfTriangles; j++){
             Triangle triangle = mesh.triangles[j];
-            Vec4 v1 = multiplyMatrixWithVec4(transformMatrix, this->vertices[triangle.getFirstVertexId()]);
-            Vec4 v2 = multiplyMatrixWithVec4(transformMatrix, this->vertices[triangle.getSecondVertexId()]);
-            Vec4 v3 = multiplyMatrixWithVec4(transformMatrix, this->vertices[triangle.getThirdVertexId()]);
+            Vec4 firstVertex = Vec4(this->vertices[triangle.getFirstVertexId()]->x, this->vertices[triangle.getFirstVertexId()]->y, this->vertices[triangle.getFirstVertexId()]->z, 1);
+            Vec4 secondVertex = Vec4(this->vertices[triangle.getSecondVertexId()]->x, this->vertices[triangle.getSecondVertexId()]->y, this->vertices[triangle.getSecondVertexId()]->z, 1);
+            Vec4 thirdVertex = Vec4(this->vertices[triangle.getThirdVertexId()]->x, this->vertices[triangle.getThirdVertexId()]->y, this->vertices[triangle.getThirdVertexId()]->z, 1);
+
+            Vec4 v1 = multiplyMatrixWithVec4(transformMatrix, firstVertex);
+            Vec4 v2 = multiplyMatrixWithVec4(transformMatrix, secondVertex);
+            Vec4 v3 = multiplyMatrixWithVec4(transformMatrix, thirdVertex);
 
 
             // Clipping
@@ -101,19 +104,19 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 //            }
 
             // Rasterization
-            int minX = min(v1.x, min(v2.x, v3.x));
-            int maxX = max(v1.x, max(v2.x, v3.x));
-            int minY = min(v1.y, min(v2.y, v3.y));
-            int maxY = max(v1.y, max(v2.y, v3.y));
-
-            for (int x = minX; x <= maxX; x++){
-                for (int y = minY; y <= maxY; y++){
-                    Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0), Vec3(v1.x, v1.y, v1.z), Vec3(v2.x, v2.y, v2.z), Vec3(v3.x, v3.y, v3.z));
-                    if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
-                        this->image[x][y] = mesh.triangles[j].color;
-                    }
-                }
-            }
+//            int minX = min(v1.x, min(v2.x, v3.x));
+//            int maxX = max(v1.x, max(v2.x, v3.x));
+//            int minY = min(v1.y, min(v2.y, v3.y));
+//            int maxY = max(v1.y, max(v2.y, v3.y));
+//
+//            for (int x = minX; x <= maxX; x++){
+//                for (int y = minY; y <= maxY; y++){
+//                    Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0), Vec3(v1.x, v1.y, v1.z), Vec3(v2.x, v2.y, v2.z), Vec3(v3.x, v3.y, v3.z));
+//                    if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
+//                        this->image[x][y] = mesh.triangles[j].color;
+//                    }
+//                }
+//            }
         }
     }
 }

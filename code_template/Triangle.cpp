@@ -21,35 +21,35 @@ Triangle::Triangle(const Triangle &other)
 }
 
 
-Vec3* applyTransformations(Matrix4 transformations) {
-    Vec3 resultVector;
-    Vec3* res = new Vec3[3];
-    resultVector.x = scene.vertices[this.getFirstVertexId()]->x;
-    resultVector.y = scene.vertices[this.getFirstVertexId()]->y;
-    resultVector.z = scene.vertices[this.getFirstVertexId()]->z;
-
-    Vec4 homoCoordinates = Vec4(resultVector.x,resultVector.y,resultVector.z,1);
-    homoCoordinates = multiplyMatrixWithVector(transformations, homoCoordinates);
-    res[0] = homoCoordinates;
-
-    resultVector.x = scene.vertices[this.getSecondVertexId()]->x;
-    resultVector.y = scene.vertices[this.getSecondVertexId()]->y;
-    resultVector.z = scene.vertices[this.getSecondVertexId()]->z;
-
-    homoCoordinates = Vec4(resultVector.x,resultVector.y,resultVector.z,1);
-    homoCoordinates = multiplyMatrixWithVector(transformations, homoCoordinates);
-    res[1] = homoCoordinates;
-
-    resultVector.x = scene.vertices[this.getThirdVertexId()]->x;
-    resultVector.y = scene.vertices[this.getThirdVertexId()]->y;
-    resultVector.z = scene.vertices[this.getThirdVertexId()]->z;
-
-    homoCoordinates = Vec4(resultVector.x,resultVector.y,resultVector.z,1);
-    homoCoordinates = multiplyMatrixWithVector(transformations, homoCoordinates);
-    res[2] = homoCoordinates;
-
-    return res;
-}
+//Vec3* Triangle::applyTransformations(Matrix4 transformations, Scene scene) {
+//    Vec3 resultVector;
+//    Vec3* res = new Vec3[3];
+//    resultVector.x = scene.vertices[this->getFirstVertexId()]->x;
+//    resultVector.y = scene.vertices[this->getFirstVertexId()]->y;
+//    resultVector.z = scene.vertices[this->getFirstVertexId()]->z;
+//
+//    Vec4 homoCoordinates = Vec4(resultVector.x,resultVector.y,resultVector.z,1);
+//    homoCoordinates = multiplyMatrixWithVector(transformations, homoCoordinates);
+//    res[0] = homoCoordinates;
+//
+//    resultVector.x = scene.vertices[this->getSecondVertexId()]->x;
+//    resultVector.y = scene.vertices[this->getSecondVertexId()]->y;
+//    resultVector.z = scene.vertices[this->getSecondVertexId()]->z;
+//
+//    homoCoordinates = Vec4(resultVector.x,resultVector.y,resultVector.z,1);
+//    homoCoordinates = multiplyMatrixWithVector(transformations, homoCoordinates);
+//    res[1] = homoCoordinates;
+//
+//    resultVector.x = scene.vertices[this->getThirdVertexId()]->x;
+//    resultVector.y = scene.vertices[this->getThirdVertexId()]->y;
+//    resultVector.z = scene.vertices[this->getThirdVertexId()]->z;
+//
+//    homoCoordinates = Vec4(resultVector.x,resultVector.y,resultVector.z,1);
+//    homoCoordinates = multiplyMatrixWithVector(transformations, homoCoordinates);
+//    res[2] = homoCoordinates;
+//
+//    return res;
+//}
 
 
 // getters

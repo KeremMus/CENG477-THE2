@@ -21,6 +21,14 @@ Vec4::Vec4(double x, double y, double z, double t, int colorId)
     this->t = t;
     this->colorId = colorId;
 }
+
+Vec4::Vec4(double x, double y, double z, double t) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
+    this->t = t;
+}
+
 Vec4::Vec4(const Vec4 &other)
 {
     this->x = other.x;

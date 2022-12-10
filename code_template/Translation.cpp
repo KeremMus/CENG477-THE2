@@ -22,22 +22,22 @@ Translation::Translation(int translationId, double tx, double ty, double tz)
 Matrix4 Translation::getTranslationMatrix()
 {
     Matrix4 result;
-    result.m[0][0] = 1.0;
-    result.m[0][1] = 0.0;
-    result.m[0][2] = 0.0;
-    result.m[0][3] = tx;
-    result.m[1][0] = 0.0;
-    result.m[1][1] = 1.0;
-    result.m[1][2] = 0.0;
-    result.m[1][3] = ty;
-    result.m[2][0] = 0.0;
-    result.m[2][1] = 0.0;
-    result.m[2][2] = 1.0;
-    result.m[2][3] = tz;
-    result.m[3][0] = 0.0;
-    result.m[3][1] = 0.0;
-    result.m[3][2] = 0.0;
-    result.m[3][3] = 1.0;
+    result.val[0][0] = 1.0;
+    result.val[0][1] = 0.0;
+    result.val[0][2] = 0.0;
+    result.val[0][3] = tx;
+    result.val[1][0] = 0.0;
+    result.val[1][1] = 1.0;
+    result.val[1][2] = 0.0;
+    result.val[1][3] = ty;
+    result.val[2][0] = 0.0;
+    result.val[2][1] = 0.0;
+    result.val[2][2] = 1.0;
+    result.val[2][3] = tz;
+    result.val[3][0] = 0.0;
+    result.val[3][1] = 0.0;
+    result.val[3][2] = 0.0;
+    result.val[3][3] = 1.0;
     return result;
 }
 

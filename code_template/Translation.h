@@ -2,6 +2,8 @@
 #define __TRANSLATION_H__
 
 #include <iostream>
+#include "Matrix4.h"
+#include "Vec4.h"
 
 using namespace std;
 
