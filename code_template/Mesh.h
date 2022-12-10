@@ -6,8 +6,6 @@
 #include <iostream>
 #include "Vec4.h"
 #include "Matrix4.h"
-#include "Helpers.h"
-#include "Scene.h"
 
 using namespace std;
 

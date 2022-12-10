@@ -1,7 +1,6 @@
 #ifndef __TRIANGLE_H__
 #define __TRIANGLE_H__
-#include "Helpers.h"
-#include "Scene.h"
+
 class Triangle
 {
 public:

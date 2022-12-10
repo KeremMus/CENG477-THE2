@@ -1,9 +1,6 @@
 #include <iostream>
-#include <string>
 #include <vector>
 #include "Scene.h"
-#include "Matrix4.h"
-#include "Helpers.h"
 
 using namespace std;
 

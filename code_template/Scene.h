@@ -17,7 +17,6 @@
 #include "Triangle.h"
 #include "Vec3.h"
 #include "Vec4.h"
-#include "Helpers.h"
 
 using namespace std;
 
@@ -26,7 +25,6 @@ class Scene
 public:
 	Color backgroundColor;
 	bool cullingEnabled;
-
 	vector< vector<Color> > image;
 	vector< Camera* > cameras;
 	vector< Vec3* > vertices;
@@ -35,6 +33,7 @@ public:
 	vector< Rotation* > rotations;
 	vector< Translation* > translations;
 	vector< Mesh* > meshes;
+
 
 	Scene(const char *xmlPath);
 

@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "Vec4.h"
-#include "Triangle.h"
+#include "Matrix4.h"
 using namespace std;
 
 class Scaling

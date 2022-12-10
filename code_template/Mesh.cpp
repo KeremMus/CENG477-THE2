@@ -1,6 +1,4 @@
-#include <vector>
 #include "Mesh.h"
-#include <iostream>
 #include <iomanip>
 
 using namespace std;

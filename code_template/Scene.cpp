@@ -1,19 +1,6 @@
-#include <iostream>
-#include <iomanip>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <cmath>
-
 #include "Scene.h"
-#include "Camera.h"
-#include "Color.h"
-#include "Mesh.h"
-#include "Rotation.h"
-#include "Scaling.h"
-#include "Translation.h"
-#include "Triangle.h"
-#include "Vec3.h"
+#include <iomanip>
+#include <fstream>
 #include "tinyxml2.h"
 
 using namespace tinyxml2;

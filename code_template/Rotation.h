@@ -18,8 +18,6 @@ public:
     Rotation();
     Rotation(int rotationId, double angle, double x, double y, double z);
     Matrix4 getRotationMatrix();
-    // apply rotation to a Vector3
-    Vec3 applyRotation(Vec3 v);
 
     friend ostream &operator<<(ostream &os, const Rotation &r);
 };
