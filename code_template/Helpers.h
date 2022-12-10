@@ -49,6 +49,8 @@ Vec3 subtractVec3(Vec3 a, Vec3 b);
  */
 Vec3 multiplyVec3WithScalar(Vec3 v, double c);
 
+Vec4 multiplyVec4WithScalar(Vec4 v, double c);
+
 /*
  * Prints elements in a vec3. Can be used for debugging purposes.
  */

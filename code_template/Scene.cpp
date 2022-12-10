@@ -11,15 +11,15 @@ Matrix4 Scene::getResultingTransformationMatrix(Mesh mesh, Vec4 v){
     Matrix4 result = getIdentityMatrix();
     for (int i = 0; i < mesh.transformationTypes.size() ; i++){
         if (mesh.transformationTypes[i] == 't'){
-            Translation translation = *this->translations[mesh.transformationIds[i]];
+            Translation translation = *this->translations[mesh.transformationIds[i]-1];
             result = multiplyMatrixWithMatrix(translation.getTranslationMatrix(), result);
         }
         if (mesh.transformationTypes[i] == 's'){
-            Scaling scaling = *this->scalings[mesh.transformationIds[i]];
+            Scaling scaling = *this->scalings[mesh.transformationIds[i]-1];
             result = multiplyMatrixWithMatrix(scaling.getScalingMatrix(v), result);
         }
         if (mesh.transformationTypes[i] == 'r'){
-            Rotation rotation = *this->rotations[mesh.transformationIds[i]];
+            Rotation rotation = *this->rotations[mesh.transformationIds[i]-1];
             result = multiplyMatrixWithMatrix(rotation.getRotationMatrix(), result);
         }
     }
@@ -63,9 +63,12 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 
         for (int j = 0; j < mesh.numberOfTriangles; j++){
             Triangle triangle = mesh.triangles[j];
-            Vec4 firstVertex = Vec4(this->vertices[triangle.getFirstVertexId()]->x, this->vertices[triangle.getFirstVertexId()]->y, this->vertices[triangle.getFirstVertexId()]->z, 1);
-            Vec4 secondVertex = Vec4(this->vertices[triangle.getSecondVertexId()]->x, this->vertices[triangle.getSecondVertexId()]->y, this->vertices[triangle.getSecondVertexId()]->z, 1);
-            Vec4 thirdVertex = Vec4(this->vertices[triangle.getThirdVertexId()]->x, this->vertices[triangle.getThirdVertexId()]->y, this->vertices[triangle.getThirdVertexId()]->z, 1);
+            Vec4 firstVertex = Vec4(this->vertices[triangle.getFirstVertexId()-1]->x, this->vertices[triangle.getFirstVertexId()-1]->y, this->vertices[triangle.getFirstVertexId()-1]->z, 1,
+                                    this->vertices[triangle.getFirstVertexId()-1]->colorId);
+            Vec4 secondVertex = Vec4(this->vertices[triangle.getSecondVertexId()-1]->x, this->vertices[triangle.getSecondVertexId()-1]->y, this->vertices[triangle.getSecondVertexId()-1]->z, 1,
+                                    this->vertices[triangle.getSecondVertexId()-1]->colorId);
+            Vec4 thirdVertex = Vec4(this->vertices[triangle.getThirdVertexId()-1]->x, this->vertices[triangle.getThirdVertexId()-1]->y, this->vertices[triangle.getThirdVertexId()-1]->z, 1,
+                                    this->vertices[triangle.getThirdVertexId()-1]->colorId);
 
             Matrix4 transformMatrixV1 = getResultingTransformationMatrix(mesh, firstVertex);
             transformMatrixV1 = multiplyMatrixWithMatrix(projectionMatrix, transformMatrixV1);
@@ -80,6 +83,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             Vec4 v2 = multiplyMatrixWithVec4(transformMatrixV2, secondVertex);
             Vec4 v3 = multiplyMatrixWithVec4(transformMatrixV3, thirdVertex);
 
+            v1 = multiplyVec4WithScalar(v1, 1/v1.t);
+            v2 = multiplyVec4WithScalar(v2, 1/v2.t);
+            v3 = multiplyVec4WithScalar(v3, 1/v3.t);
 
             // Clipping
 //            if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < -1 || v1.z > 1 ||
@@ -98,20 +104,30 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 //                }
 //            }
 
-            // Rasterization
-//            int minX = min(v1.x, min(v2.x, v3.x));
-//            int maxX = max(v1.x, max(v2.x, v3.x));
-//            int minY = min(v1.y, min(v2.y, v3.y));
-//            int maxY = max(v1.y, max(v2.y, v3.y));
-//
-//            for (int x = minX; x <= maxX; x++){
-//                for (int y = minY; y <= maxY; y++){
-//                    Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0), Vec3(v1.x, v1.y, v1.z), Vec3(v2.x, v2.y, v2.z), Vec3(v3.x, v3.y, v3.z));
-//                    if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
-//                        this->image[x][y] = mesh.triangles[j].color;
-//                    }
-//                }
-//            }
+            int minX = min(v1.x, min(v2.x, v3.x));
+            int maxX = max(v1.x, max(v2.x, v3.x));
+            int minY = min(v1.y, min(v2.y, v3.y));
+            int maxY = max(v1.y, max(v2.y, v3.y));
+
+            for (int x = minX; x <= maxX; x++){
+                for (int y = minY; y <= maxY; y++){
+                    Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
+                                                                            Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
+                    if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
+
+                        Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
+                        Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
+                        Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
+
+                        Vec3 pixelColor = addVec3(multiplyVec3WithScalar(firstVertexColor, barycentricCoordinates.x), multiplyVec3WithScalar(secondVertexColor, barycentricCoordinates.y));
+                        pixelColor = addVec3(pixelColor, multiplyVec3WithScalar(thirdVertexColor, barycentricCoordinates.z));
+
+                        this->image[x][y].r = pixelColor.x;
+                        this->image[x][y].g = pixelColor.y;
+                        this->image[x][y].b = pixelColor.z;
+                    }
+                }
+            }
         }
     }
 }
