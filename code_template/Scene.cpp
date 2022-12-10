@@ -20,7 +20,7 @@ using namespace tinyxml2;
 using namespace std;
 
 
-Matrix4 Scene::getResultingTransformationMatrix(Mesh mesh){
+Matrix4 Scene::getResultingTransformationMatrix(Mesh mesh, Vec4 v){
     Matrix4 result = getIdentityMatrix();
     for (int i = 0; i < mesh.transformationTypes.size() ; i++){
         if (mesh.transformationTypes[i] == 't'){
@@ -29,7 +29,7 @@ Matrix4 Scene::getResultingTransformationMatrix(Mesh mesh){
         }
         if (mesh.transformationTypes[i] == 's'){
             Scaling scaling = *this->scalings[mesh.transformationIds[i]];
-            result = multiplyMatrixWithMatrix(scaling.getScalingMatrix(), result);
+            result = multiplyMatrixWithMatrix(scaling.getScalingMatrix(v), result);
         }
         if (mesh.transformationTypes[i] == 'r'){
             Rotation rotation = *this->rotations[mesh.transformationIds[i]];
@@ -72,8 +72,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
     for (int i = 0; i < this->meshes.size(); i++)
     {
         Mesh mesh = *this->meshes[i];
-        Matrix4 transformMatrix = getResultingTransformationMatrix(mesh);
-        transformMatrix = multiplyMatrixWithMatrix(projectionMatrix, transformMatrix);
+
 
         for (int j = 0; j < mesh.numberOfTriangles; j++){
             Triangle triangle = mesh.triangles[j];
@@ -81,9 +80,18 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             Vec4 secondVertex = Vec4(this->vertices[triangle.getSecondVertexId()]->x, this->vertices[triangle.getSecondVertexId()]->y, this->vertices[triangle.getSecondVertexId()]->z, 1);
             Vec4 thirdVertex = Vec4(this->vertices[triangle.getThirdVertexId()]->x, this->vertices[triangle.getThirdVertexId()]->y, this->vertices[triangle.getThirdVertexId()]->z, 1);
 
-            Vec4 v1 = multiplyMatrixWithVec4(transformMatrix, firstVertex);
-            Vec4 v2 = multiplyMatrixWithVec4(transformMatrix, secondVertex);
-            Vec4 v3 = multiplyMatrixWithVec4(transformMatrix, thirdVertex);
+            Matrix4 transformMatrixV1 = getResultingTransformationMatrix(mesh, firstVertex);
+            transformMatrixV1 = multiplyMatrixWithMatrix(projectionMatrix, transformMatrixV1);
+
+            Matrix4 transformMatrixV2 = getResultingTransformationMatrix(mesh, secondVertex);
+            transformMatrixV2 = multiplyMatrixWithMatrix(projectionMatrix, transformMatrixV2);
+
+            Matrix4 transformMatrixV3 = getResultingTransformationMatrix(mesh, thirdVertex);
+            transformMatrixV3 = multiplyMatrixWithMatrix(projectionMatrix, transformMatrixV3);
+
+            Vec4 v1 = multiplyMatrixWithVec4(transformMatrixV1, firstVertex);
+            Vec4 v2 = multiplyMatrixWithVec4(transformMatrixV2, secondVertex);
+            Vec4 v3 = multiplyMatrixWithVec4(transformMatrixV3, thirdVertex);
 
 
             // Clipping

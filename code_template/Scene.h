@@ -39,7 +39,7 @@ public:
 	Scene(const char *xmlPath);
 
 	void initializeImage(Camera* camera);
-    Matrix4 getResultingTransformationMatrix(Mesh mesh);
+    Matrix4 getResultingTransformationMatrix(Mesh mesh, Vec4 v);
     void forwardRenderingPipeline(Camera* camera);
     Vec3 getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondVertex, Vec3 thirdVertex);
 	int makeBetweenZeroAnd255(double value);
