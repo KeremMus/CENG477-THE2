@@ -55,6 +55,42 @@ Camera::Camera(const Camera &other)
     this->outputFileName = other.outputFileName;
 }
 
+Matrix4 Camera::getViewportTransformationMatrix() {
+    Matrix4 viewportMatrix = getIdentityMatrix();
+    viewportMatrix.matrix[0][0] = (this->horRes) / 2;
+    viewportMatrix.matrix[0][3] = (this->horRes - 1) / 2;
+    viewportMatrix.matrix[1][1] = (this->verRes) / 2;
+    viewportMatrix.matrix[1][3] = (this->verRes - 1) / 2;
+    viewportMatrix.matrix[2][2] = 0.5;
+    viewportMatrix.matrix[2][3] = 0.5;
+    return viewportMatrix;
+}
+
+
+Matrix4 Camera::getProjectionTransformationMatrix(int projectionType) {
+    Matrix4 projectionMatrix = getIdentityMatrix();
+
+    projectionMatrix.matrix[0][0] = 2 / (this->right - this->left);
+    projectionMatrix.matrix[0][3] = -(this->right + this->left) / (this->right - this->left);
+    projectionMatrix.matrix[1][1] = 2 / (this->top - this->bottom);
+    projectionMatrix.matrix[1][3] = -(this->top + this->bottom) / (this->top - this->bottom);
+    projectionMatrix.matrix[2][2] = -(2 / (this->far - this->near));
+    projectionMatrix.matrix[2][3] = -(this->near + this->far) / (this->far - this->near);
+
+    if (projectionType) {
+        Matrix4 pers2orth = getIdentityMatrix();
+        pers2orth.matrix[0][0] = this->near;
+        pers2orth.matrix[1][1] = this->near;
+        pers2orth.matrix[2][2] = this->near + this->far;
+        pers2orth.matrix[2][3] = this->near * this->far;
+        pers2orth.matrix[3][2] = -1;
+        pers2orth.matrix[3][3] = 0;
+        projectionMatrix = multiplyMatrixWithMatrix(projectionMatrix, pers2orth);
+    }
+
+    return projectionMatrix;
+}
+
 Matrix4 Camera::getCameraTransformationMatrix(){
 
     Matrix4 cameraTransformationMatrix;

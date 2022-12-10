@@ -40,6 +40,7 @@ public:
 	void initializeImage(Camera* camera);
     Matrix4 getResultingTransformationMatrix(Mesh mesh);
     void forwardRenderingPipeline(Camera* camera);
+    Vec3 getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondVertex, Vec3 thirdVertex);
 	int makeBetweenZeroAnd255(double value);
 	void writeImageToPPMFile(Camera* camera);
 	void convertPPMToPNG(string ppmFileName, int osType);

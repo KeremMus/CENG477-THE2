@@ -3,6 +3,7 @@
 
 #include "Vec3.h"
 #include <string>
+#include "Helpers.h"
 
 using namespace std;
 
@@ -38,6 +39,10 @@ public:
     Camera(const Camera &other);
 
     Matrix4 getCameraTransformationMatrix();
+
+    Matrix4 getViewportTransformationMatrix();
+
+    Matrix4 getProjectionTransformationMatrix(int projectionType);
 
     friend std::ostream &operator<<(std::ostream &os, const Camera &c);
 };
