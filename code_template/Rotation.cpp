@@ -1,7 +1,7 @@
 #include "Rotation.h"
 #include <iostream>
 #include <iomanip>
-
+#include "Helpers.h"
 using namespace std;
 
 Rotation::Rotation() {}
@@ -15,26 +15,52 @@ Rotation::Rotation(int rotationId, double angle, double x, double y, double z)
     this->uz = z;
 }
 Matrix4 Rotation::getRotationMatrix() {
-    Matrix4 result;
-    result.val[0][0] = ux * ux * (1 - cos(angle)) + cos(angle);
-    result.val[0][1] = ux * uy * (1 - cos(angle)) - uz * sin(angle);
-    result.val[0][2] = ux * uz * (1 - cos(angle)) + uy * sin(angle);
-    result.val[0][3] = 0.0;
-    result.val[1][0] = uy * ux * (1 - cos(angle)) + uz * sin(angle);
-    result.val[1][1] = uy * uy * (1 - cos(angle)) + cos(angle);
-    result.val[1][2] = uy * uz * (1 - cos(angle)) - ux * sin(angle);
-    result.val[1][3] = 0.0;
-    result.val[2][0] = uz * ux * (1 - cos(angle)) - uy * sin(angle);
-    result.val[2][1] = uz * uy * (1 - cos(angle)) + ux * sin(angle);
-    result.val[2][2] = uz * uz * (1 - cos(angle)) + cos(angle);
-    result.val[2][3] = 0.0;
-    result.val[3][0] = 0.0;
-    result.val[3][1] = 0.0;
-    result.val[3][2] = 0.0;
-    result.val[3][3] = 1.0;
-    return result;
-}
+    Vec3 v;
+    Vec3 u = Vec3(this->ux, this->uy, this->uz, -1);
+    u = normalizeVec3(u);
+    if (u.x < u.y && u.x < u.z) {
+        v = Vec3(0, u.z, -u.y, -1);
+    } else if (u.y < u.x && u.y < u.z) {
+        v = Vec3(-u.z, 0, u.x, -1);
+    } else {
+        v = Vec3(u.y, -u.x, 0, -1);
+    }
+    v = normalizeVec3(v);
+    Vec3 w = crossProductVec3(u, v);
+    w = normalizeVec3(w);
+    Matrix4 M = getIdentityMatrix();
+    M.val[0][0] = u.x;
+    M.val[0][1] = u.y;
+    M.val[0][2] = u.z;
+    M.val[1][0] = v.x;
+    M.val[1][1] = v.y;
+    M.val[1][2] = v.z;
+    M.val[2][0] = w.x;
+    M.val[2][1] = w.y;
+    M.val[2][2] = w.z;
 
+    Matrix4 M_inverse = getIdentityMatrix();
+    M_inverse.val[0][0] = u.x;
+    M_inverse.val[0][1] = v.x;
+    M_inverse.val[0][2] = w.x;
+    M_inverse.val[1][0] = u.y;
+    M_inverse.val[1][1] = v.y;
+    M_inverse.val[1][2] = w.y;
+    M_inverse.val[2][0] = u.z;
+    M_inverse.val[2][1] = v.z;
+    M_inverse.val[2][2] = w.z;
+
+    Matrix4 R = getIdentityMatrix();
+    R.val[1][1] = cos(this->angle);
+    R.val[1][2] = -sin(this->angle);
+    R.val[2][1] = sin(this->angle);
+    R.val[2][2] = cos(this->angle);
+
+    Matrix4 temp = multiplyMatrixWithMatrix(M_inverse, R);
+    Matrix4 result = multiplyMatrixWithMatrix(temp, M);
+    return result;
+
+}
 
 ostream &operator<<(ostream &os, const Rotation &r)
 {

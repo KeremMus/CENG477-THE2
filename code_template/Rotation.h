@@ -6,7 +6,6 @@
 #include "Matrix4.h"
 #include "Vec4.h"
 #include "Vec3.h"
-
 using namespace std;
 
 class Rotation

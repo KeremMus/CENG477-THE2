@@ -114,7 +114,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                     Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
                                                                             Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
                     if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
-
+//                        if (mesh.type == 0 && (barycentricCoordinates.x != 0 && barycentricCoordinates.y != 0  && barycentricCoordinates.z != 0)){
+//                            continue;
+//                        }
                         Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
                         Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
                         Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
@@ -126,6 +128,19 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                         this->image[x][y].g = pixelColor.y;
                         this->image[x][y].b = pixelColor.z;
                     }
+//                    else if (mesh.type == 0 && ((barycentricCoordinates.x == 0)|| barycentricCoordinates.y == 0  || barycentricCoordinates.z == 0)){
+//
+//                        Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
+//                        Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
+//                        Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
+//
+//                        Vec3 pixelColor = addVec3(multiplyVec3WithScalar(firstVertexColor, barycentricCoordinates.x), multiplyVec3WithScalar(secondVertexColor, barycentricCoordinates.y));
+//                        pixelColor = addVec3(pixelColor, multiplyVec3WithScalar(thirdVertexColor, barycentricCoordinates.z));
+//
+//                        this->image[x][y].r = pixelColor.x;
+//                        this->image[x][y].g = pixelColor.y;
+//                        this->image[x][y].b = pixelColor.z;
+//                    }
                 }
             }
         }
