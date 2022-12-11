@@ -18,12 +18,12 @@ Matrix4 Rotation::getRotationMatrix() {
     Vec3 v;
     Vec3 u = Vec3(this->ux, this->uy, this->uz, -1);
     u = normalizeVec3(u);
-    if (u.x < u.y && u.x < u.z) {
-        v = Vec3(0, u.z, -u.y, -1);
-    } else if (u.y < u.x && u.y < u.z) {
-        v = Vec3(-u.z, 0, u.x, -1);
+    if (abs(u.x) < abs(u.y) && abs(u.x) < abs(u.z)) {
+        v = Vec3(0, (-1.0)*u.z, u.y, -1);
+    } else if (abs(u.y) < abs(u.x) && abs(u.y) < abs(u.z)) {
+        v = Vec3((-1.0)*u.z, 0, u.x, -1);
     } else {
-        v = Vec3(u.y, -u.x, 0, -1);
+        v = Vec3((-1.0)*u.y, u.x, 0, -1);
     }
     v = normalizeVec3(v);
     Vec3 w = crossProductVec3(u, v);
@@ -51,10 +51,10 @@ Matrix4 Rotation::getRotationMatrix() {
     M_inverse.val[2][2] = w.z;
 
     Matrix4 R = getIdentityMatrix();
-    R.val[1][1] = cos(this->angle);
-    R.val[1][2] = -sin(this->angle);
-    R.val[2][1] = sin(this->angle);
-    R.val[2][2] = cos(this->angle);
+    R.val[1][1] = cos(this->angle*M_PI/180.0);
+    R.val[1][2] = -sin(this->angle*M_PI/180.0);
+    R.val[2][1] = sin(this->angle*M_PI/180.0);
+    R.val[2][2] = cos(this->angle*M_PI/180.0);
 
     Matrix4 temp = multiplyMatrixWithMatrix(M_inverse, R);
     Matrix4 result = multiplyMatrixWithMatrix(temp, M);

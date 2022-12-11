@@ -87,6 +87,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             v2 = multiplyVec4WithScalar(v2, 1/v2.t);
             v3 = multiplyVec4WithScalar(v3, 1/v3.t);
 
+
             // Clipping
 //            if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < -1 || v1.z > 1 ||
 //                v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v2.z < -1 || v2.z > 1 ||
@@ -113,10 +114,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                 for (int y = minY; y <= maxY; y++){
                     Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
                                                                             Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
-                    if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
-//                        if (mesh.type == 0 && (barycentricCoordinates.x != 0 && barycentricCoordinates.y != 0  && barycentricCoordinates.z != 0)){
-//                            continue;
-//                        }
+                    if (mesh.type == 1 && (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0)){
                         Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
                         Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
                         Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
@@ -124,23 +122,43 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                         Vec3 pixelColor = addVec3(multiplyVec3WithScalar(firstVertexColor, barycentricCoordinates.x), multiplyVec3WithScalar(secondVertexColor, barycentricCoordinates.y));
                         pixelColor = addVec3(pixelColor, multiplyVec3WithScalar(thirdVertexColor, barycentricCoordinates.z));
 
-                        this->image[x][y].r = pixelColor.x;
-                        this->image[x][y].g = pixelColor.y;
-                        this->image[x][y].b = pixelColor.z;
+                        this->image[x][y].r = round(pixelColor.x);
+                        this->image[x][y].g = round(pixelColor.y);
+                        this->image[x][y].b = round(pixelColor.z);
                     }
-//                    else if (mesh.type == 0 && ((barycentricCoordinates.x == 0)|| barycentricCoordinates.y == 0  || barycentricCoordinates.z == 0)){
-//
-//                        Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
-//                        Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
-//                        Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
-//
-//                        Vec3 pixelColor = addVec3(multiplyVec3WithScalar(firstVertexColor, barycentricCoordinates.x), multiplyVec3WithScalar(secondVertexColor, barycentricCoordinates.y));
-//                        pixelColor = addVec3(pixelColor, multiplyVec3WithScalar(thirdVertexColor, barycentricCoordinates.z));
-//
-//                        this->image[x][y].r = pixelColor.x;
-//                        this->image[x][y].g = pixelColor.y;
-//                        this->image[x][y].b = pixelColor.z;
-//                    }
+                    else if (mesh.type == 0 ){
+                        Vec4 modifiedVertices[] = {v1, v2, v3};
+                        for (int b = 0 ; b < 2; b++){
+                            for (int a = b+1; a < 3; a++){
+                                Vec4 vertex_0 = modifiedVertices[b];
+                                Vec4 vertex_1 = modifiedVertices[a];
+                                double slope = (vertex_1.y - vertex_0.y) / (vertex_1.x - vertex_0.x);
+                                if (slope <1 && slope > 0) {
+                                    if (vertex_0.x < vertex_1.x){
+                                        double y = vertex_0.y;
+                                        Vec3 color0 = Vec3(this->colorsOfVertices[vertex_0.colorId-1]->r, this->colorsOfVertices[vertex_0.colorId-1]->g, this->colorsOfVertices[vertex_0.colorId-1]->b, -1);
+                                        Vec3 color1 = Vec3(this->colorsOfVertices[vertex_1.colorId-1]->r, this->colorsOfVertices[vertex_1.colorId-1]->g, this->colorsOfVertices[vertex_1.colorId-1]->b, -1);
+                                        Vec3 dc = subtractVec3(color1, color0);
+                                        dc = multiplyVec3WithScalar(dc, 1/(vertex_1.x - vertex_0.x));
+                                        double d = 2* (vertex_0.y - vertex_1.y) - (vertex_1.x - vertex_0.x);
+                                        for (int x = vertex_0.x; x <= vertex_1.x; x++){
+                                            this->image[x][y].r = round(color0.x);
+                                            this->image[x][y].g = round(color0.y);
+                                            this->image[x][y].b = round(color0.z);
+                                            if (d < 0){
+                                                y++;
+                                                d += (vertex_0.y - vertex_1.y) + (vertex_1.x - vertex_0.x);
+                                            }
+                                            else{
+                                                d += (vertex_0.y - vertex_1.y);
+                                            }
+                                            color0 = addVec3(color0, dc);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

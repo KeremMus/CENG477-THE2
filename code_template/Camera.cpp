@@ -56,10 +56,10 @@ Camera::Camera(const Camera &other)
 
 Matrix4 Camera::getViewportTransformationMatrix() {
     Matrix4 viewportMatrix = getIdentityMatrix();
-    viewportMatrix.val[0][0] = (this->horRes) / 2;
-    viewportMatrix.val[0][3] = (this->horRes - 1) / 2;
-    viewportMatrix.val[1][1] = (this->verRes) / 2;
-    viewportMatrix.val[1][3] = (this->verRes - 1) / 2;
+    viewportMatrix.val[0][0] = (this->horRes) / 2.0;
+    viewportMatrix.val[0][3] = (this->horRes - 1) / 2.0;
+    viewportMatrix.val[1][1] = (this->verRes) / 2.0;
+    viewportMatrix.val[1][3] = (this->verRes - 1) / 2.0;
     viewportMatrix.val[2][2] = 0.5;
     viewportMatrix.val[2][3] = 0.5;
     return viewportMatrix;
@@ -97,17 +97,17 @@ Matrix4 Camera::getCameraTransformationMatrix(){
     cameraTransformationMatrix.val[0][0] = u.x;
     cameraTransformationMatrix.val[0][1] = u.y;
     cameraTransformationMatrix.val[0][2] = u.z;
-    cameraTransformationMatrix.val[0][3] = -dotProductVec3(pos,u);
+    cameraTransformationMatrix.val[0][3] = -1 * dotProductVec3(pos,u);
 
     cameraTransformationMatrix.val[1][0] = v.x;
     cameraTransformationMatrix.val[1][1] = v.y;
     cameraTransformationMatrix.val[1][2] = v.z;
-    cameraTransformationMatrix.val[1][3] = -dotProductVec3(pos,v);
+    cameraTransformationMatrix.val[1][3] = -1 * dotProductVec3(pos,v);
 
     cameraTransformationMatrix.val[2][0] = w.x;
     cameraTransformationMatrix.val[2][1] = w.y;
     cameraTransformationMatrix.val[2][2] = w.z;
-    cameraTransformationMatrix.val[2][3] = -dotProductVec3(pos,w);
+    cameraTransformationMatrix.val[2][3] = -1 * dotProductVec3(pos,w);
 
     cameraTransformationMatrix.val[3][0] = 0;
     cameraTransformationMatrix.val[3][1] = 0;
