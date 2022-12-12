@@ -109,52 +109,104 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             int maxX = max(v1.x, max(v2.x, v3.x));
             int minY = min(v1.y, min(v2.y, v3.y));
             int maxY = max(v1.y, max(v2.y, v3.y));
+            if (mesh.type == 1){
+                for (int x = minX; x <= maxX; x++){
+                    for (int y = minY; y <= maxY; y++){
+                        Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
+                                                                                Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
+                        if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
+                            Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
+                            Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
+                            Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
 
-            for (int x = minX; x <= maxX; x++){
-                for (int y = minY; y <= maxY; y++){
-                    Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
-                                                                            Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
-                    if (mesh.type == 1 && (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0)){
-                        Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
-                        Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
-                        Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
+                            Vec3 pixelColor = addVec3(multiplyVec3WithScalar(firstVertexColor, barycentricCoordinates.x), multiplyVec3WithScalar(secondVertexColor, barycentricCoordinates.y));
+                            pixelColor = addVec3(pixelColor, multiplyVec3WithScalar(thirdVertexColor, barycentricCoordinates.z));
 
-                        Vec3 pixelColor = addVec3(multiplyVec3WithScalar(firstVertexColor, barycentricCoordinates.x), multiplyVec3WithScalar(secondVertexColor, barycentricCoordinates.y));
-                        pixelColor = addVec3(pixelColor, multiplyVec3WithScalar(thirdVertexColor, barycentricCoordinates.z));
-
-                        this->image[x][y].r = round(pixelColor.x);
-                        this->image[x][y].g = round(pixelColor.y);
-                        this->image[x][y].b = round(pixelColor.z);
+                            this->image[x][y].r = round(pixelColor.x);
+                            this->image[x][y].g = round(pixelColor.y);
+                            this->image[x][y].b = round(pixelColor.z);
+                        }
                     }
-                    else if (mesh.type == 0 ){
-                        Vec4 modifiedVertices[] = {v1, v2, v3};
-                        for (int b = 0 ; b < 2; b++){
-                            for (int a = b+1; a < 3; a++){
-                                Vec4 vertex_0 = modifiedVertices[b];
-                                Vec4 vertex_1 = modifiedVertices[a];
-                                double slope = (vertex_1.y - vertex_0.y) / (vertex_1.x - vertex_0.x);
-                                if (slope <1 && slope > 0) {
-                                    if (vertex_0.x < vertex_1.x){
-                                        double y = vertex_0.y;
-                                        Vec3 color0 = Vec3(this->colorsOfVertices[vertex_0.colorId-1]->r, this->colorsOfVertices[vertex_0.colorId-1]->g, this->colorsOfVertices[vertex_0.colorId-1]->b, -1);
-                                        Vec3 color1 = Vec3(this->colorsOfVertices[vertex_1.colorId-1]->r, this->colorsOfVertices[vertex_1.colorId-1]->g, this->colorsOfVertices[vertex_1.colorId-1]->b, -1);
-                                        Vec3 dc = subtractVec3(color1, color0);
-                                        dc = multiplyVec3WithScalar(dc, 1/(vertex_1.x - vertex_0.x));
-                                        double d = 2* (vertex_0.y - vertex_1.y) - (vertex_1.x - vertex_0.x);
-                                        for (int x = vertex_0.x; x <= vertex_1.x; x++){
-                                            this->image[x][y].r = round(color0.x);
-                                            this->image[x][y].g = round(color0.y);
-                                            this->image[x][y].b = round(color0.z);
-                                            if (d < 0){
-                                                y++;
-                                                d += (vertex_0.y - vertex_1.y) + (vertex_1.x - vertex_0.x);
-                                            }
-                                            else{
-                                                d += (vertex_0.y - vertex_1.y);
-                                            }
-                                            color0 = addVec3(color0, dc);
-                                        }
-                                    }
+                }
+            }
+            else if (mesh.type == 0){
+                Vec4 modifiedVertices[] = {v1, v2, v3};
+                for (int b = 0 ; b < 2; b++) {
+                    for (int a = b + 1; a < 3; a++) {
+                        Vec4 vertex_0 = modifiedVertices[b];
+                        Vec4 vertex_1 = modifiedVertices[a];
+                        Vec3 color0 = Vec3(this->colorsOfVertices[vertex_0.colorId - 1]->r,
+                                           this->colorsOfVertices[vertex_0.colorId - 1]->g,
+                                           this->colorsOfVertices[vertex_0.colorId - 1]->b, -1);
+                        Vec3 color1 = Vec3(this->colorsOfVertices[vertex_1.colorId - 1]->r,
+                                           this->colorsOfVertices[vertex_1.colorId - 1]->g,
+                                           this->colorsOfVertices[vertex_1.colorId - 1]->b, -1);
+                        double slope = (vertex_1.y - vertex_0.y) / (vertex_1.x - vertex_0.x);
+                        if (slope > 0 && slope < 1){
+                            int y = min(vertex_0.y, vertex_1.y);
+                            int d = 2* abs(vertex_1.y - vertex_0.y) - abs(vertex_1.x - vertex_0.x);
+                            int xmax = max(vertex_0.x, vertex_1.x);
+                            for ( int x = min(vertex_0.x, vertex_1.x); x <= xmax; x++) {
+                                image[x][y].r = round(color0.x * abs(vertex_1.x - x) / abs(vertex_1.x - vertex_0.x) + color1.x * abs(vertex_0.x - x) / abs(vertex_1.x - vertex_0.x));
+                                image[x][y].g = round(color0.y * abs(vertex_1.x - x) / abs(vertex_1.x - vertex_0.x) + color1.y * abs(vertex_0.x - x) / abs(vertex_1.x - vertex_0.x));
+                                image[x][y].b = round(color0.z * abs(vertex_1.x - x) / abs(vertex_1.x - vertex_0.x) + color1.z * abs(vertex_0.x - x) / abs(vertex_1.x - vertex_0.x));
+                                if (d <= 0){
+                                    d += 2*abs(vertex_1.y - vertex_0.y);
+                                }
+                                else{
+                                    d += 2*abs(vertex_1.y - vertex_0.y) - 2*abs(vertex_1.x - vertex_0.x);
+                                    y++;
+                                }
+                            }
+                        }
+                        else if (slope > 1){
+                            int x = min(vertex_0.x, vertex_1.x);
+                            int d = 2* abs(vertex_1.x - vertex_0.x) - abs(vertex_1.y - vertex_0.y);
+                            int ymax = max(vertex_0.y, vertex_1.y);
+                            for ( int y = min(vertex_0.y, vertex_1.y); y <= ymax; y++) {
+                                image[x][y].r = round(color0.x * abs(vertex_1.y - y) / abs(vertex_1.y - vertex_0.y) + color1.x * abs(vertex_0.y - y) / abs(vertex_1.y - vertex_0.y));
+                                image[x][y].g = round(color0.y * abs(vertex_1.y - y) / abs(vertex_1.y - vertex_0.y) + color1.y * abs(vertex_0.y - y) / abs(vertex_1.y - vertex_0.y));
+                                image[x][y].b = round(color0.z * abs(vertex_1.y - y) / abs(vertex_1.y - vertex_0.y) + color1.z * abs(vertex_0.y - y) / abs(vertex_1.y - vertex_0.y));
+                                if (d <= 0){
+                                    d += 2*abs(vertex_1.x - vertex_0.x);
+                                }
+                                else{
+                                    d += 2*abs(vertex_1.x - vertex_0.x) - 2*abs(vertex_1.y - vertex_0.y);
+                                    x++;
+                                }
+                            }
+                        }
+                        else if (slope <= 0 && slope >= -1){
+                            int y = max(vertex_0.y, vertex_1.y);
+                            int d = 2* abs(vertex_1.y - vertex_0.y) - abs(vertex_1.x - vertex_0.x);
+                            int xmax = max(vertex_0.x, vertex_1.x);
+                            for ( int x = min(vertex_0.x, vertex_1.x); x <= xmax; x++) {
+                                image[x][y].r = round(color0.x * abs(vertex_1.x - x) / abs(vertex_1.x - vertex_0.x) + color1.x * abs(vertex_0.x - x) / abs(vertex_1.x - vertex_0.x));
+                                image[x][y].g = round(color0.y * abs(vertex_1.x - x) / abs(vertex_1.x - vertex_0.x) + color1.y * abs(vertex_0.x - x) / abs(vertex_1.x - vertex_0.x));
+                                image[x][y].b = round(color0.z * abs(vertex_1.x - x) / abs(vertex_1.x - vertex_0.x) + color1.z * abs(vertex_0.x - x) / abs(vertex_1.x - vertex_0.x));
+                                if (d <= 0){
+                                    d += 2*abs(vertex_1.y - vertex_0.y);
+                                }
+                                else{
+                                    d += 2*abs(vertex_1.y - vertex_0.y) - 2*abs(vertex_1.x - vertex_0.x);
+                                    y--;
+                                }
+                            }
+                        }
+                        else if (slope < -1) {
+                            int x = max(vertex_0.x, vertex_1.x);
+                            int d = 2* abs(vertex_1.x - vertex_0.x) - abs(vertex_1.y - vertex_0.y);
+                            int ymax = max(vertex_0.y, vertex_1.y);
+                            for ( int y = min(vertex_0.y, vertex_1.y); y <= ymax; y++) {
+                                image[x][y].r = round(color0.x * abs(vertex_1.y - y) / abs(vertex_1.y - vertex_0.y) + color1.x * abs(vertex_0.y - y) / abs(vertex_1.y - vertex_0.y));
+                                image[x][y].g = round(color0.y * abs(vertex_1.y - y) / abs(vertex_1.y - vertex_0.y) + color1.y * abs(vertex_0.y - y) / abs(vertex_1.y - vertex_0.y));
+                                image[x][y].b = round(color0.z * abs(vertex_1.y - y) / abs(vertex_1.y - vertex_0.y) + color1.z * abs(vertex_0.y - y) / abs(vertex_1.y - vertex_0.y));
+                                if (d <= 0){
+                                    d += 2*abs(vertex_1.x - vertex_0.x);
+                                }
+                                else{
+                                    d += 2*abs(vertex_1.x - vertex_0.x) - 2*abs(vertex_1.y - vertex_0.y);
+                                    x--;
                                 }
                             }
                         }
