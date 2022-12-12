@@ -88,22 +88,22 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             v3 = multiplyVec4WithScalar(v3, 1/v3.t);
 
 
-            // Clipping
+             // Clipping
 //            if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < -1 || v1.z > 1 ||
 //                v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v2.z < -1 || v2.z > 1 ||
 //                v3.x < -1 || v3.x > 1 || v3.y < -1 || v3.y > 1 || v3.z < -1 || v3.z > 1){
 //                continue;
 //            }
-//
-//            // Culling
-//            if (this->cullingEnabled){
-//                Vec3 normal = getNormalOfTriangle(triangle);
-//                Vec3 cameraPosition = camera->position;
-//                Vec3 cameraToTriangle = Vec3(v1.x, v1.y, v1.z) - cameraPosition;
-//                if (dotProduct(normal, cameraToTriangle) < 0){
-//                    continue;
-//                }
-//            }
+
+            // Culling
+            if (this->cullingEnabled){
+                Vec3 normal = getNormalOfTriangle(convertVec4ToVec3(v1), convertVec4ToVec3(v2), convertVec4ToVec3(v3));
+                Vec3 cameraPosition = camera->pos;
+                Vec3 cameraToTriangle = subtractVec3(Vec3(v1.x, v1.y, v1.z,-1), cameraPosition);
+                if (dotProductVec3(normal, cameraToTriangle) < 0){
+                    continue;
+                }
+            }
 
             int minX = min(v1.x, min(v2.x, v3.x));
             int maxX = max(v1.x, max(v2.x, v3.x));

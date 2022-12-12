@@ -79,4 +79,8 @@ Vec4 multiplyMatrixWithVec4(Matrix4 m, Vec4 v);
 
 Matrix4 getResultingTransformationMatrix(Mesh mesh);
 
+Vec3 getNormalOfTriangle(Vec3 v1, Vec3 v2, Vec3 v3);
+
+Vec3 convertVec4ToVec3(Vec4 v);
+
 #endif

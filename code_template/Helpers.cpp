@@ -208,7 +208,22 @@ Vec4 multiplyVec4WithScalar(Vec4 v, double c){
     result.y = v.y * c;
     result.z = v.z * c;
     result.t = v.t * c;
+    result.colorId = v.colorId;
+    return result;
+}
 
+Vec3 getNormalOfTriangle(Vec3 a, Vec3 b, Vec3 c){
+    Vec3 ab = subtractVec3(b, a);
+    Vec3 ac = subtractVec3(c, a);
+    Vec3 normal = crossProductVec3(ab, ac);
+    return normalizeVec3(normal);
+}
+
+Vec3 convertVec4ToVec3(Vec4 v){
+    Vec3 result;
+    result.x = v.x;
+    result.y = v.y;
+    result.z = v.z;
     return result;
 }
 
