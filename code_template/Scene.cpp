@@ -132,9 +132,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             // Culling
             if (this->cullingEnabled){
                 Vec3 normal = getNormalOfTriangle(convertVec4ToVec3(v1), convertVec4ToVec3(v2), convertVec4ToVec3(v3));
-                Vec3 cameraPosition = camera->pos;
-                Vec3 cameraToTriangle = subtractVec3(Vec3(v1.x, v1.y, v1.z,-1), cameraPosition);
-                if (dotProductVec3(normal, cameraToTriangle) < 0){
+                if (dotProductVec3(normal, convertVec4ToVec3(v1)) < 0){
                     continue;
                 }
             }
@@ -148,8 +146,8 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                 int maxX = max(v1.x, max(v2.x, v3.x));
                 int minY = min(v1.y, min(v2.y, v3.y));
                 int maxY = max(v1.y, max(v2.y, v3.y));
-                for (int x = minX; x <= maxX; x++){
-                    for (int y = minY; y <= maxY; y++){
+                for (int x = max(minX,0); x <= maxX; x++){
+                    for (int y = max(minY,0); y <= maxY; y++){
                         Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
                                                                                 Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
                         if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
