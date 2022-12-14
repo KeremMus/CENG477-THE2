@@ -83,4 +83,7 @@ Vec3 getNormalOfTriangle(Vec3 v1, Vec3 v2, Vec3 v3);
 
 Vec3 convertVec4ToVec3(Vec4 v);
 
+bool isVisible(double den, double num, double &tE, double &tL);
+
+
 #endif

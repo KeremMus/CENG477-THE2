@@ -227,4 +227,29 @@ Vec3 convertVec4ToVec3(Vec4 v){
     return result;
 }
 
+bool isVisible(double den, double num, double & te, double & tl) {
+        double t;
+    if (den > 0) {
+        t = num / den;
+        if (t > tl)
+            return false;
+        else if (t > te)
+            te = t;
+    }
+    else if (den < 0) {
+        t = num / den;
+        if (t < te)
+            return false;
+        else if (t < tl)
+            tl = t;
+    }
+    else if (num > 0) {
+        return false;
+    }
+    return true;
+}
+
+
+
+
 

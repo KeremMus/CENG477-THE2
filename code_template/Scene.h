@@ -39,6 +39,7 @@ public:
 
 	void initializeImage(Camera* camera);
     Matrix4 getResultingTransformationMatrix(Mesh mesh, Vec4 v);
+    bool clipper(Vec4 &v1, Vec4 &v2,Vec3 &c1, Vec3 &c2);
     void forwardRenderingPipeline(Camera* camera);
     Vec3 getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondVertex, Vec3 thirdVertex);
 	int makeBetweenZeroAnd255(double value);

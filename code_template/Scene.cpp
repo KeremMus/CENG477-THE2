@@ -45,14 +45,52 @@ Vec3 Scene::getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondV
 	You may define helper functions.
 */
 
+
+bool Scene::clipper (Vec4 &v1, Vec4 &v2, Vec3 &c1, Vec3 &c2){
+    double te = 0;
+    double tl = 1;
+    double dx = v2.x - v1.x;
+    double dy = v2.y - v1.y;
+    double dz = v2.z - v1.z;
+    Vec3 dc = subtractVec3(c2, c1);
+    if (!isVisible(dx, (-1-(v1.x)), te, tl))
+        return false;
+    if (!isVisible(-dx, ((v1.x)-1), te, tl))
+        return false;
+    if (!isVisible(dy, (-1-(v1.y)), te, tl))
+        return false;
+    if (!isVisible(-dy, ((v1.y)-1), te, tl))
+        return false;
+    if (!isVisible(dz, (-1-(v1.z)), te, tl))
+        return false;
+    if (!isVisible(-dz, ((v1.z)-1), te, tl))
+        return false;
+    if (tl<1) {
+        v2.x = v1.x + tl * dx;
+        v2.y = v1.y + tl * dy;
+        v2.z = v1.z + tl * dz;
+        c2 = addVec3(c1, multiplyVec3WithScalar(dc, tl));
+    }
+    if (te>0) {
+        v1.x = v1.x + te * dx;
+        v1.y = v1.y + te * dy;
+        v1.z = v1.z + te * dz;
+        c1 = addVec3(c1, multiplyVec3WithScalar(dc, te));
+    }
+    return true;
+
+}
+
+
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
     Matrix4 viewportMatrix = camera->getViewportTransformationMatrix();
 
     Matrix4 cameraTransformationMatrix = camera->getCameraTransformationMatrix();
     Matrix4 perspectiveMatrix = camera->getProjectionTransformationMatrix(camera->projectionType);
-    Matrix4 projectionMatrix = multiplyMatrixWithMatrix(viewportMatrix, perspectiveMatrix);
-    projectionMatrix = multiplyMatrixWithMatrix(projectionMatrix, cameraTransformationMatrix);
+
+    Matrix4 projectionMatrix = multiplyMatrixWithMatrix(perspectiveMatrix, cameraTransformationMatrix);
+    //projectionMatrix = multiplyMatrixWithMatrix(projectionMatrix, cameraTransformationMatrix);
 
     // Viewport x_min?, rotation
 
@@ -88,12 +126,8 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             v3 = multiplyVec4WithScalar(v3, 1/v3.t);
 
 
-             // Clipping
-//            if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < -1 || v1.z > 1 ||
-//                v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v2.z < -1 || v2.z > 1 ||
-//                v3.x < -1 || v3.x > 1 || v3.y < -1 || v3.y > 1 || v3.z < -1 || v3.z > 1){
-//                continue;
-//            }
+
+
 
             // Culling
             if (this->cullingEnabled){
@@ -105,11 +139,15 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                 }
             }
 
-            int minX = min(v1.x, min(v2.x, v3.x));
-            int maxX = max(v1.x, max(v2.x, v3.x));
-            int minY = min(v1.y, min(v2.y, v3.y));
-            int maxY = max(v1.y, max(v2.y, v3.y));
-            if (mesh.type == 1){
+
+            if (mesh.type == 1){ // for solid meshes
+                v1 = multiplyMatrixWithVec4(viewportMatrix, v1);
+                v2 = multiplyMatrixWithVec4(viewportMatrix, v2);
+                v3 = multiplyMatrixWithVec4(viewportMatrix, v3);
+                int minX = min(v1.x, min(v2.x, v3.x));
+                int maxX = max(v1.x, max(v2.x, v3.x));
+                int minY = min(v1.y, min(v2.y, v3.y));
+                int maxY = max(v1.y, max(v2.y, v3.y));
                 for (int x = minX; x <= maxX; x++){
                     for (int y = minY; y <= maxY; y++){
                         Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
@@ -129,7 +167,8 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                     }
                 }
             }
-            else if (mesh.type == 0){
+            else if (mesh.type == 0){ // for wireframe meshes
+
                 Vec4 modifiedVertices[] = {v1, v2, v3};
                 for (int b = 0 ; b < 2; b++) {
                     for (int a = b + 1; a < 3; a++) {
@@ -141,6 +180,11 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                         Vec3 color1 = Vec3(this->colorsOfVertices[vertex_1.colorId - 1]->r,
                                            this->colorsOfVertices[vertex_1.colorId - 1]->g,
                                            this->colorsOfVertices[vertex_1.colorId - 1]->b, -1);
+                        if (!this->clipper(vertex_0, vertex_1, color0, color1)) {
+                            continue;
+                        }
+                        vertex_0 = multiplyMatrixWithVec4(viewportMatrix, vertex_0);
+                        vertex_1 = multiplyMatrixWithVec4(viewportMatrix, vertex_1);
                         double slope = (vertex_1.y - vertex_0.y) / (vertex_1.x - vertex_0.x);
                         if (slope > 0 && slope < 1){
                             int y = min(vertex_0.y, vertex_1.y);
