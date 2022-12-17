@@ -34,7 +34,7 @@ Vec3 Scene::getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondV
     double betaNom = (point.x*(thirdVertex.y-firstVertex.y)+ point.y*(firstVertex.x- thirdVertex.x)+(thirdVertex.x*firstVertex.y)-(thirdVertex.y*firstVertex.x));
     double betaDenom = (secondVertex.x*(thirdVertex.y-firstVertex.y)+ secondVertex.y*(firstVertex.x- thirdVertex.x)+(thirdVertex.x*firstVertex.y)-(thirdVertex.y*firstVertex.x));
     double beta = betaNom/betaDenom;
-    double gamma = 1 - alpha - beta;
+    double gamma = 1.0 - alpha - beta;
     result.x = alpha;
     result.y = beta;
     result.z = gamma;
@@ -47,31 +47,31 @@ Vec3 Scene::getBarycentricCoordinates(Vec3 point, Vec3 firstVertex, Vec3 secondV
 
 
 bool Scene::clipper (Vec4 &v1, Vec4 &v2, Vec3 &c1, Vec3 &c2){
-    double te = 0;
-    double tl = 1;
+    double te = 0.0;
+    double tl = 1.0;
     double dx = v2.x - v1.x;
     double dy = v2.y - v1.y;
     double dz = v2.z - v1.z;
     Vec3 dc = subtractVec3(c2, c1);
-    if (!isVisible(dx, (-1-(v1.x)), te, tl))
+    if (!isVisible(dx, (-1.0-(v1.x)), te, tl))
         return false;
-    if (!isVisible(-dx, ((v1.x)-1), te, tl))
+    if (!isVisible(-dx, ((v1.x)-1.0), te, tl))
         return false;
-    if (!isVisible(dy, (-1-(v1.y)), te, tl))
+    if (!isVisible(dy, (-1.0-(v1.y)), te, tl))
         return false;
-    if (!isVisible(-dy, ((v1.y)-1), te, tl))
+    if (!isVisible(-dy, ((v1.y)-1.0), te, tl))
         return false;
-    if (!isVisible(dz, (-1-(v1.z)), te, tl))
+    if (!isVisible(dz, (-1.0-(v1.z)), te, tl))
         return false;
-    if (!isVisible(-dz, ((v1.z)-1), te, tl))
+    if (!isVisible(-dz, ((v1.z)-1.0), te, tl))
         return false;
-    if (tl<1) {
+    if (tl<1.0) {
         v2.x = v1.x + tl * dx;
         v2.y = v1.y + tl * dy;
         v2.z = v1.z + tl * dz;
         c2 = addVec3(c1, multiplyVec3WithScalar(dc, tl));
     }
-    if (te>0) {
+    if (te>0.0) {
         v1.x = v1.x + te * dx;
         v1.y = v1.y + te * dy;
         v1.z = v1.z + te * dz;
@@ -121,12 +121,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
             Vec4 v2 = multiplyMatrixWithVec4(transformMatrixV2, secondVertex);
             Vec4 v3 = multiplyMatrixWithVec4(transformMatrixV3, thirdVertex);
 
-            v1 = multiplyVec4WithScalar(v1, 1/v1.t);
-            v2 = multiplyVec4WithScalar(v2, 1/v2.t);
-            v3 = multiplyVec4WithScalar(v3, 1/v3.t);
-
-
-
+            v1 = multiplyVec4WithScalar(v1, 1.0/v1.t);
+            v2 = multiplyVec4WithScalar(v2, 1.0/v2.t);
+            v3 = multiplyVec4WithScalar(v3, 1.0/v3.t);
 
 
             // Culling
@@ -144,13 +141,17 @@ void Scene::forwardRenderingPipeline(Camera *camera)
                 v3 = multiplyMatrixWithVec4(viewportMatrix, v3);
                 int minX = min(v1.x, min(v2.x, v3.x));
                 int maxX = max(v1.x, max(v2.x, v3.x));
+                if (maxX <= 0) continue;
+                if (maxX >= camera->horRes) maxX = camera->horRes-1;
                 int minY = min(v1.y, min(v2.y, v3.y));
                 int maxY = max(v1.y, max(v2.y, v3.y));
+                if (maxY <= 0) continue;
+                if (maxY >= camera->verRes) maxY = camera->verRes-1;
                 for (int x = max(minX,0); x <= maxX; x++){
                     for (int y = max(minY,0); y <= maxY; y++){
                         Vec3 barycentricCoordinates = getBarycentricCoordinates(Vec3(x, y, 0, -1), Vec3(v1.x, v1.y, v1.z, firstVertex.colorId),
                                                                                 Vec3(v2.x, v2.y, v2.z, secondVertex.colorId), Vec3(v3.x, v3.y, v3.z, thirdVertex.colorId));
-                        if (barycentricCoordinates.x >= 0 && barycentricCoordinates.y >= 0 && barycentricCoordinates.z >= 0){
+                        if (barycentricCoordinates.x >= 0.0 && barycentricCoordinates.y >= 0.0 && barycentricCoordinates.z >= 0.0){
                             Vec3 firstVertexColor(this->colorsOfVertices[firstVertex.colorId-1]->r, this->colorsOfVertices[firstVertex.colorId-1]->g, this->colorsOfVertices[firstVertex.colorId-1]->b, -1);
                             Vec3 secondVertexColor(this->colorsOfVertices[secondVertex.colorId-1]->r, this->colorsOfVertices[secondVertex.colorId-1]->g, this->colorsOfVertices[secondVertex.colorId-1]->b, -1);
                             Vec3 thirdVertexColor(this->colorsOfVertices[thirdVertex.colorId-1]->r, this->colorsOfVertices[thirdVertex.colorId-1]->g, this->colorsOfVertices[thirdVertex.colorId-1]->b, -1);
